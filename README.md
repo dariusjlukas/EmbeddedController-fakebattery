@@ -1,5 +1,29 @@
 # Framework Laptop Embedded Controller (EC)
 
+# Warning: This modified EC firmware will falsely report battery statistics. Do not use with a battery attached! It could damage or destroy the battery and laptop!
+## This modified EC code is intended to enable bios updates on standalone mainboards (the bios update process checks that a battery is attached and refuses to continue if there is none). It is largely untested (it worked once) and could brick, damage, or destroy your machine!
+## Using this with a battery attached is very dangerous! Because the battery management code has been modified, the charge controller could attempt to overcharge the battery, which could lead to destroying the battery or it catching fire! Only use this with the battery detached! Honestly, I would recommend not using this code at all.
+
+## Compiler Warning: Do not use with gcc > 10. Doing so will brick your machine! More info here: [https://www.howett.net/posts/2022-04-adding-an-ec-feature-1/](https://www.howett.net/posts/2022-04-adding-an-ec-feature-1/)
+I compiled this code on Ubuntu 20.04 with arm-none-eabi-gcc 9.2.1.
+
+The problem with updating the bios on Framework mainboards that lack a battery is the update tool performs a check of the battery level before starting. No battery = 0%, so standalone mainboards will fail the check and the update will fail. This modified EC controller will report the existence of a charged battery when there is none, thus allowing the bios update to proceed. It should be noted that losing power during a bios update will likely brick your device, so proceed with caution. The process I followed is based on the post found here: [https://www.howett.net/posts/2022-04-adding-an-ec-feature-1/](https://www.howett.net/posts/2022-04-adding-an-ec-feature-1/). Read that first before continuing. You will need to follow the process used in that post to upload the modified EC firmware.
+
+The rough steps to update the bios on a framework laptop **with no battery attached**, running linux (I am on Fedora 37) are:
+1. Build the modified EC firmware image.
+2. Load the EC firmware image using the process from article here: [https://www.howett.net/posts/2022-04-adding-an-ec-feature-1/](https://www.howett.net/posts/2022-04-adding-an-ec-feature-1/).
+3. Boot into your operating system and confirm that the system thinks there is a battery attached. It should show up as nearly fully charged.
+4. Ensure the power cable is plugged into the *left* side of the mainboard. This is because the bios update will update the PD (power delivery) controllers, updating the right side first then the left side. When the PD controller is updated, the laptop will loose power. The workaround is to run the update once with the power plugged in on the left, and again with the power plugged in on the right.
+5. Use LVFS to start the update (tutorial here: [https://moverest.xyz/blog/update-bios-uefi-with-fwupd/](https://moverest.xyz/blog/update-bios-uefi-with-fwupd/)). The screen may go dark and the fans should ramp up. *Do not remove power or turn off the device while this is happening*. The updater will first update the bios/uefi, then the EC, then the right PD controller, and finally it will try to update the left PD controller. The left PD controller update will fail and cause the system to loose power and restart. Upon restarting you may see a screen saying the bios update failed due to a missing battery, however the bios update should have completed successfully. Boot into your OS to make sure everything is still working.
+6. Run `fwupdmgr get-devices` to get the status of the updated devices. The update may show as incomplete.
+7. Re-flash the modified EC code, since the previous update overwrote it.
+8. Plug the power cable into the right side and use LVFS to re-run the update.
+9. This time the update should succeed. Run `fwupdmgr get-devices` to confirm that the firmware update was a success.
+
+As an aside, after updating my bios I noticed that my WiFi/Bluetooth were missing. This was caused by a new setting in the bios that enabled/disabled WiFi/Bluetooth defaulting to disabled.
+
+### What follows below is from the Framework EC repo readme:
+
 ## Introduction
 
 This project holds the code used for the Framework Laptop Embedded Controller.
