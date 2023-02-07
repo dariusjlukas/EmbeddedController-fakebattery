@@ -72,6 +72,10 @@ int adc_read_channel(enum adc_channel ch)
 	const struct adc_t *adc = adc_channels + ch;
 	int value;
 
+	if(ch == ADC_VCIN1_BATT_TEMP){
+		return 2900;
+	}
+
 	mutex_lock(&adc_lock);
 
 	MCHP_ADC_SINGLE = 1 << adc->channel;

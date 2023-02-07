@@ -2416,7 +2416,10 @@ int charge_get_percent(void)
 	 * to the battery, that'll be zero, which is probably as good as
 	 * anything.
 	 */
-	return is_full ? 100 : curr.batt.state_of_charge;
+	// Darius - start comment
+	//return is_full ? 100 : curr.batt.state_of_charge;
+	return 100;
+	// Darius - end comment
 }
 
 int charge_get_display_charge(void)
