@@ -19,8 +19,8 @@
 
 #define BATTERY_NO_RESPONSE_TIMEOUT	(1000*MSEC)
 
-static int fake_state_of_charge = -1;
-static int fake_temperature = -1;
+static int fake_state_of_charge = 1;
+static int fake_temperature = 42;
 
 static int battery_supports_pec(void)
 {
@@ -63,90 +63,95 @@ test_mockable int sb_read(int cmd, int *param)
 
 test_mockable int sb_write(int cmd, int param)
 {
-	uint16_t addr_flags = BATTERY_ADDR_FLAGS;
+// 	uint16_t addr_flags = BATTERY_ADDR_FLAGS;
 
-#ifdef CONFIG_BATTERY_CUT_OFF
-	/*
-	 * Some batteries would wake up after cut-off if we talk to it.
-	 */
-	if (battery_is_cut_off())
-		return EC_RES_ACCESS_DENIED;
-#endif
-	if (battery_supports_pec())
-		addr_flags |= I2C_FLAG_PEC;
+// #ifdef CONFIG_BATTERY_CUT_OFF
+// 	/*
+// 	 * Some batteries would wake up after cut-off if we talk to it.
+// 	 */
+// 	if (battery_is_cut_off())
+// 		return EC_RES_ACCESS_DENIED;
+// #endif
+// 	if (battery_supports_pec())
+// 		addr_flags |= I2C_FLAG_PEC;
 
-	return i2c_write16(I2C_PORT_BATTERY, addr_flags, cmd, param);
+// 	return i2c_write16(I2C_PORT_BATTERY, addr_flags, cmd, param);
+return 0;
 }
 
 int sb_read_string(int offset, uint8_t *data, int len)
 {
-	uint16_t addr_flags = BATTERY_ADDR_FLAGS;
+// 	uint16_t addr_flags = BATTERY_ADDR_FLAGS;
 
-#ifdef CONFIG_BATTERY_CUT_OFF
-	/*
-	 * Some batteries would wake up after cut-off if we talk to it.
-	 */
-	if (battery_is_cut_off())
-		return EC_RES_ACCESS_DENIED;
-#endif
-	if (battery_supports_pec())
-		addr_flags |= I2C_FLAG_PEC;
+// #ifdef CONFIG_BATTERY_CUT_OFF
+// 	/*
+// 	 * Some batteries would wake up after cut-off if we talk to it.
+// 	 */
+// 	if (battery_is_cut_off())
+// 		return EC_RES_ACCESS_DENIED;
+// #endif
+// 	if (battery_supports_pec())
+// 		addr_flags |= I2C_FLAG_PEC;
 
-	return i2c_read_string(I2C_PORT_BATTERY, addr_flags, offset, data, len);
+// 	return i2c_read_string(I2C_PORT_BATTERY, addr_flags, offset, data, len);
+return 0;
 }
 
 int sb_read_mfgacc(int cmd, int block, uint8_t *data, int len)
 {
-	int rv;
+	// int rv;
 
-	/*
-	 * First two bytes returned from read are command sent hence read
-	 * doesn't yield anything if the length is less than 3 bytes.
-	 */
-	if (len < 3)
-		return EC_ERROR_INVAL;
+	// /*
+	//  * First two bytes returned from read are command sent hence read
+	//  * doesn't yield anything if the length is less than 3 bytes.
+	//  */
+	// if (len < 3)
+	// 	return EC_ERROR_INVAL;
 
-	/* Send manufacturer access command */
-	rv = sb_write(SB_MANUFACTURER_ACCESS, cmd);
-	if (rv)
-		return rv;
+	// /* Send manufacturer access command */
+	// rv = sb_write(SB_MANUFACTURER_ACCESS, cmd);
+	// if (rv)
+	// 	return rv;
 
-	/*
-	 * Read data on the register block.
-	 * First two bytes returned are command sent,
-	 * rest are actual data LSB to MSB.
-	 */
-	rv = sb_read_string(block, data, len);
-	if (rv)
-		return rv;
-	if ((data[0] | data[1] << 8) != cmd)
-		return EC_ERROR_UNKNOWN;
+	// /*
+	//  * Read data on the register block.
+	//  * First two bytes returned are command sent,
+	//  * rest are actual data LSB to MSB.
+	//  */
+	// rv = sb_read_string(block, data, len);
+	// if (rv)
+	// 	return rv;
+	// if ((data[0] | data[1] << 8) != cmd)
+	// 	return EC_ERROR_UNKNOWN;
 
 	return EC_SUCCESS;
 }
 
 int sb_write_block(int reg, const uint8_t *val, int len)
 {
-	uint16_t addr_flags = BATTERY_ADDR_FLAGS;
+// 	uint16_t addr_flags = BATTERY_ADDR_FLAGS;
 
-#ifdef CONFIG_BATTERY_CUT_OFF
-	/*
-	 * Some batteries would wake up after cut-off if we talk to it.
-	 */
-	if (battery_is_cut_off())
-		return EC_RES_ACCESS_DENIED;
-#endif
+// #ifdef CONFIG_BATTERY_CUT_OFF
+// 	/*
+// 	 * Some batteries would wake up after cut-off if we talk to it.
+// 	 */
+// 	if (battery_is_cut_off())
+// 		return EC_RES_ACCESS_DENIED;
+// #endif
 
-	if (battery_supports_pec())
-		addr_flags |= I2C_FLAG_PEC;
+// 	if (battery_supports_pec())
+// 		addr_flags |= I2C_FLAG_PEC;
 
-	/* TODO: implement smbus_write_block. */
-	return i2c_write_block(I2C_PORT_BATTERY, addr_flags, reg, val, len);
+// 	/* TODO: implement smbus_write_block. */
+// 	return i2c_write_block(I2C_PORT_BATTERY, addr_flags, reg, val, len);
+return 0;
 }
 
 int battery_get_mode(int *mode)
 {
-	return sb_read(SB_BATTERY_MODE, mode);
+	// return sb_read(SB_BATTERY_MODE, mode);
+	*mode = 1;
+	return 0;
 }
 
 /**
@@ -155,76 +160,113 @@ int battery_get_mode(int *mode)
  * @return non-zero if error.
  */
 
-static int battery_force_mah_mode(void)
-{
-	int val, rv;
-	rv = battery_get_mode(&val);
-	if (rv)
-		return rv;
+// static int battery_force_mah_mode(void)
+// {
+// 	// int val, rv;
+// 	// rv = battery_get_mode(&val);
+// 	// if (rv)
+// 	// 	return rv;
 
-	if (val & MODE_CAPACITY)
-		rv = sb_write(SB_BATTERY_MODE, val & ~MODE_CAPACITY);
+// 	// if (val & MODE_CAPACITY)
+// 	// 	rv = sb_write(SB_BATTERY_MODE, val & ~MODE_CAPACITY);
 
-	return rv;
-}
+// 	// return rv;
+// 	return 0;
+// }
 
 int battery_state_of_charge_abs(int *percent)
 {
-	return sb_read(SB_ABSOLUTE_STATE_OF_CHARGE, percent);
+	//Darius - start comment
+	//return sb_read(SB_ABSOLUTE_STATE_OF_CHARGE, percent);
+	*percent = 80;
+	return 0;
+	//Darius - end comment
 }
 
 int battery_remaining_capacity(int *capacity)
 {
-	int rv = battery_force_mah_mode();
-	if (rv)
-		return rv;
-
-	return sb_read(SB_REMAINING_CAPACITY, capacity);
+	//Darius - start comment
+	// int rv = battery_force_mah_mode();
+	// if (rv)
+	// 	return rv;
+	
+	//return sb_read(SB_REMAINING_CAPACITY, capacity);
+	*capacity = 3000;
+	return 0;
+	//Darius - end comment
 }
 
 int battery_full_charge_capacity(int *capacity)
 {
-	int rv = battery_force_mah_mode();
-	if (rv)
-		return rv;
+	//Darius - start comment
+	// int rv = battery_force_mah_mode();
+	// if (rv)
+	// 	return rv;
 
-	return sb_read(SB_FULL_CHARGE_CAPACITY, capacity);
+	// return sb_read(SB_FULL_CHARGE_CAPACITY, capacity);
+	*capacity = 3125;
+	return 0;
+	//Darius - end comment
 }
 
 int battery_time_to_empty(int *minutes)
 {
-	return sb_read(SB_AVERAGE_TIME_TO_EMPTY, minutes);
+	//Darius - start comment
+	//return sb_read(SB_AVERAGE_TIME_TO_EMPTY, minutes);
+	*minutes = 480;
+	return 0;
+	//Darius - end comment
 }
 
 int battery_run_time_to_empty(int *minutes)
 {
-	return sb_read(SB_RUN_TIME_TO_EMPTY, minutes);
+	//Darius - start comment
+	//return sb_read(SB_RUN_TIME_TO_EMPTY, minutes);
+	*minutes = 480;
+	return 0;
+	//Darius - end comment
 }
 
 int battery_time_to_full(int *minutes)
 {
-	return sb_read(SB_AVERAGE_TIME_TO_FULL, minutes);
+	//Darius - start comment
+	//return sb_read(SB_AVERAGE_TIME_TO_FULL, minutes);
+	*minutes = 10;
+	return 0;
+	//Darius - end comment
 }
 
 /* Read battery status */
 int battery_status(int *status)
 {
-	return sb_read(SB_BATTERY_STATUS, status);
+	//Darius - start comment
+	//return sb_read(SB_BATTERY_STATUS, status);
+	*status = 1;
+	return 0;
+	//Darius - end comment
 }
 
 /* Battery charge cycle count */
 int battery_cycle_count(int *count)
 {
-	return sb_read(SB_CYCLE_COUNT, count);
+	//Darius - start comment
+	//return sb_read(SB_CYCLE_COUNT, count);
+	*count = 9;
+	return 0;
+	//Darius - end comment
 }
 
 int battery_design_capacity(int *capacity)
 {
-	int rv = battery_force_mah_mode();
-	if (rv)
-		return rv;
+	//Darius - start comment
+	// int rv = battery_force_mah_mode();
+	// if (rv)
+	// 	return rv;
 
-	return sb_read(SB_DESIGN_CAPACITY, capacity);
+	// return sb_read(SB_DESIGN_CAPACITY, capacity);
+	*capacity = 3125;
+	return 0;
+	//Darius - end comment
 }
 
 /* Designed battery output voltage
@@ -232,100 +274,123 @@ int battery_design_capacity(int *capacity)
  */
 int battery_design_voltage(int *voltage)
 {
-	return sb_read(SB_DESIGN_VOLTAGE, voltage);
+	//return sb_read(SB_DESIGN_VOLTAGE, voltage);
+	*voltage = 17600;
+	return 0;
 }
 
 /* Read serial number */
 int battery_serial_number(int *serial)
 {
-	return sb_read(SB_SERIAL_NUMBER, serial);
+	//return sb_read(SB_SERIAL_NUMBER, serial);
+	*serial = 1;
+	return 0;
 }
 
 test_mockable int battery_time_at_rate(int rate, int *minutes)
 {
-	int rv;
-	int ok, time;
-	int loop, cmd, output_sign;
+	// int rv;
+	// int ok, time;
+	// int loop, cmd, output_sign;
 
-	if (rate == 0) {
-		*minutes = 0;
-		return EC_ERROR_INVAL;
-	}
+	// if (rate == 0) {
+	// 	*minutes = 0;
+	// 	return EC_ERROR_INVAL;
+	// }
 
-	rv = sb_write(SB_AT_RATE, rate);
-	if (rv)
-		return rv;
-	loop = 5;
-	while (loop--) {
-		rv = sb_read(SB_AT_RATE_OK, &ok);
-		if (rv)
-			return rv;
-		if (ok) {
-			if (rate > 0) {
-				cmd = SB_AT_RATE_TIME_TO_FULL;
-				output_sign = -1;
-			} else {
-				cmd = SB_AT_RATE_TIME_TO_EMPTY;
-				output_sign = 1;
-			}
-			rv = sb_read(cmd, &time);
-			if (rv)
-				return rv;
+	// rv = sb_write(SB_AT_RATE, rate);
+	// if (rv)
+	// 	return rv;
+	// loop = 5;
+	// while (loop--) {
+	// 	rv = sb_read(SB_AT_RATE_OK, &ok);
+	// 	if (rv)
+	// 		return rv;
+	// 	if (ok) {
+	// 		if (rate > 0) {
+	// 			cmd = SB_AT_RATE_TIME_TO_FULL;
+	// 			output_sign = -1;
+	// 		} else {
+	// 			cmd = SB_AT_RATE_TIME_TO_EMPTY;
+	// 			output_sign = 1;
+	// 		}
+	// 		rv = sb_read(cmd, &time);
+	// 		if (rv)
+	// 			return rv;
 
-			*minutes = (time == 0xffff) ? 0 : output_sign * time;
-			return EC_SUCCESS;
-		} else {
-			/* wait 10ms for AT_RATE_OK */
-			msleep(10);
-		}
-	}
-	return EC_ERROR_TIMEOUT;
+	// 		*minutes = (time == 0xffff) ? 0 : output_sign * time;
+	// 		return EC_SUCCESS;
+	// 	} else {
+	// 		/* wait 10ms for AT_RATE_OK */
+	// 		msleep(10);
+	// 	}
+	// }
+	// return EC_ERROR_TIMEOUT;
+	*minutes = 11;
+	return 0;
 }
 
 test_mockable int battery_manufacture_date(int *year, int *month, int *day)
 {
-	int rv;
-	int ymd;
+	// int rv;
+	// int ymd;
 
-	rv = sb_read(SB_MANUFACTURE_DATE, &ymd);
-	if (rv)
-		return rv;
+	// rv = sb_read(SB_MANUFACTURE_DATE, &ymd);
+	// if (rv)
+	// 	return rv;
 
-	/* battery date format:
-	 * ymd = day + month * 32 + (year - 1980) * 512
-	 */
-	*year  = (ymd >> 9) + 1980;
-	*month = (ymd >> 5) & 0xf;
-	*day   = ymd & 0x1f;
+	// /* battery date format:
+	//  * ymd = day + month * 32 + (year - 1980) * 512
+	//  */
+	// *year  = (ymd >> 9) + 1980;
+	// *month = (ymd >> 5) & 0xf;
+	// *day   = ymd & 0x1f;
+
+	*year = 1981;
+	*month = 2;
+	*day = 3;
 
 	return EC_SUCCESS;
 }
 
 int get_battery_manufacturer_name(char *dest, int size)
 {
-	return sb_read_string(SB_MANUFACTURER_NAME, dest, size);
+	// return sb_read_string(SB_MANUFACTURER_NAME, dest, size);
+	dest[0] = 'L';
+	dest[1] = 'G';
+	dest[2] = '\0';
+	return 0;
 }
 
 /* Read device name */
 test_mockable int battery_device_name(char *dest, int size)
 {
-	return sb_read_string(SB_DEVICE_NAME, dest, size);
+	// return sb_read_string(SB_DEVICE_NAME, dest, size);
+	dest[0] = 'A';
+	dest[1] = 'B';
+	dest[2] = '\0';
+	return 0;
 }
 
 /* Read battery type/chemistry */
 test_mockable int battery_device_chemistry(char *dest, int size)
 {
-	return sb_read_string(SB_DEVICE_CHEMISTRY, dest, size);
+	// return sb_read_string(SB_DEVICE_CHEMISTRY, dest, size);
+	dest[0] = 'L';
+	dest[1] = 'i';
+	dest[2] = '\0';
+	return 0;
 }
 
 #ifdef CONFIG_CMD_PWR_AVG
 int battery_get_avg_current(void)
 {
-	int current;
+	// int current;
 
-	/* This is a signed 16-bit value. */
-	sb_read(SB_AVERAGE_CURRENT, &current);
-	return (int16_t)current;
+	// /* This is a signed 16-bit value. */
+	// sb_read(SB_AVERAGE_CURRENT, &current);
+	// return (int16_t)current;
+	return 10000;
 }
 
 /*
@@ -335,133 +400,143 @@ int battery_get_avg_current(void)
  */
 int battery_get_avg_voltage(void)
 {
-	int voltage = -EC_ERROR_UNKNOWN;
+	// int voltage = -EC_ERROR_UNKNOWN;
 
-	sb_read(SB_VOLTAGE, &voltage);
-	return voltage;
+	// sb_read(SB_VOLTAGE, &voltage);
+	// return voltage;
+	return 17500;
 }
 #endif /* CONFIG_CMD_PWR_AVG */
 
-static void apply_fake_state_of_charge(struct batt_params *batt)
-{
-	int full;
+// static void apply_fake_state_of_charge(struct batt_params *batt)
+// {
+// 	int full;
 
-	if (fake_state_of_charge < 0)
-		return;
+// 	if (fake_state_of_charge < 0)
+// 		return;
 
-	if (batt->flags & BATT_FLAG_BAD_FULL_CAPACITY)
-		battery_design_capacity(&full);
-	else
-		full = batt->full_capacity;
+// 	if (batt->flags & BATT_FLAG_BAD_FULL_CAPACITY)
+// 		battery_design_capacity(&full);
+// 	else
+// 		full = batt->full_capacity;
 
-	batt->state_of_charge = fake_state_of_charge;
-	batt->remaining_capacity = full * fake_state_of_charge / 100;
-	batt->flags &= ~BATT_FLAG_BAD_STATE_OF_CHARGE;
-	batt->flags &= ~BATT_FLAG_BAD_REMAINING_CAPACITY;
-}
+// 	batt->state_of_charge = fake_state_of_charge;
+// 	batt->remaining_capacity = full * fake_state_of_charge / 100;
+// 	batt->flags &= ~BATT_FLAG_BAD_STATE_OF_CHARGE;
+// 	batt->flags &= ~BATT_FLAG_BAD_REMAINING_CAPACITY;
+// }
 
 void battery_get_params(struct batt_params *batt)
 {
 	struct batt_params batt_new = {0};
-	int v;
+	//int v;
 
-	if (sb_read(SB_TEMPERATURE, &batt_new.temperature)
-			&& fake_temperature < 0)
-		batt_new.flags |= BATT_FLAG_BAD_TEMPERATURE;
+	// if (sb_read(SB_TEMPERATURE, &batt_new.temperature)
+	// 		&& fake_temperature < 0)
+	// 	batt_new.flags |= BATT_FLAG_BAD_TEMPERATURE;
 
 	/* If temperature is faked, override with faked data */
 	if (fake_temperature >= 0)
 		batt_new.temperature = fake_temperature;
 
-	if (sb_read(SB_RELATIVE_STATE_OF_CHARGE, &batt_new.state_of_charge)
-	    && fake_state_of_charge < 0)
-		batt_new.flags |= BATT_FLAG_BAD_STATE_OF_CHARGE;
+	// if (sb_read(SB_RELATIVE_STATE_OF_CHARGE, &batt_new.state_of_charge)
+	//     && fake_state_of_charge < 0)
+	// 	batt_new.flags |= BATT_FLAG_BAD_STATE_OF_CHARGE;
+	batt_new.state_of_charge = 1;
 
-	if (sb_read(SB_VOLTAGE, &batt_new.voltage))
-		batt_new.flags |= BATT_FLAG_BAD_VOLTAGE;
+	// if (sb_read(SB_VOLTAGE, &batt_new.voltage))
+	// 	batt_new.flags |= BATT_FLAG_BAD_VOLTAGE;
+	batt_new.voltage = 17500;
 
 	/* This is a signed 16-bit value. */
-	if (sb_read(SB_CURRENT, &v))
-		batt_new.flags |= BATT_FLAG_BAD_CURRENT;
-	else
-		batt_new.current = (int16_t)v;
+	// if (sb_read(SB_CURRENT, &v))
+	// 	batt_new.flags |= BATT_FLAG_BAD_CURRENT;
+	// else
+	// 	batt_new.current = (int16_t)v;
+	batt_new.current = 10000;
 
-	if (sb_read(SB_CHARGING_VOLTAGE, &batt_new.desired_voltage))
-		batt_new.flags |= BATT_FLAG_BAD_DESIRED_VOLTAGE;
+	// if (sb_read(SB_CHARGING_VOLTAGE, &batt_new.desired_voltage))
+	// 	batt_new.flags |= BATT_FLAG_BAD_DESIRED_VOLTAGE;
+	batt_new.desired_voltage = 17600;
 
-	if (sb_read(SB_CHARGING_CURRENT, &batt_new.desired_current))
-		batt_new.flags |= BATT_FLAG_BAD_DESIRED_CURRENT;
+	// if (sb_read(SB_CHARGING_CURRENT, &batt_new.desired_current))
+	// 	batt_new.flags |= BATT_FLAG_BAD_DESIRED_CURRENT;
+	batt_new.desired_current = 10000;
 
-	if (battery_remaining_capacity(&batt_new.remaining_capacity))
-		batt_new.flags |= BATT_FLAG_BAD_REMAINING_CAPACITY;
+	// if (battery_remaining_capacity(&batt_new.remaining_capacity))
+	// 	batt_new.flags |= BATT_FLAG_BAD_REMAINING_CAPACITY;
+	batt_new.remaining_capacity = 3000;
 
-	if (battery_full_charge_capacity(&batt_new.full_capacity))
-		batt_new.flags |= BATT_FLAG_BAD_FULL_CAPACITY;
+	// if (battery_full_charge_capacity(&batt_new.full_capacity))
+	// 	batt_new.flags |= BATT_FLAG_BAD_FULL_CAPACITY;
+	batt_new.full_capacity = 3125;
 
-	if (battery_status(&batt_new.status))
-		batt_new.flags |= BATT_FLAG_BAD_STATUS;
+	// if (battery_status(&batt_new.status))
+	// 	batt_new.flags |= BATT_FLAG_BAD_STATUS;
+	batt_new.status = 1;
 
 	/* If any of those reads worked, the battery is responsive */
-	if ((batt_new.flags & BATT_FLAG_BAD_ANY) != BATT_FLAG_BAD_ANY)
-		batt_new.flags |= BATT_FLAG_RESPONSIVE;
+	// if ((batt_new.flags & BATT_FLAG_BAD_ANY) != BATT_FLAG_BAD_ANY)
+	batt_new.flags |= BATT_FLAG_RESPONSIVE;
 
-#ifdef CONFIG_BATTERY_MEASURE_IMBALANCE
-	if (battery_imbalance_mv() > CONFIG_BATTERY_MAX_IMBALANCE_MV)
-		batt_new.flags |= BATT_FLAG_IMBALANCED_CELL;
-#endif
+// #ifdef CONFIG_BATTERY_MEASURE_IMBALANCE
+// 	if (battery_imbalance_mv() > CONFIG_BATTERY_MAX_IMBALANCE_MV)
+// 		batt_new.flags |= BATT_FLAG_IMBALANCED_CELL;
+// #endif
 
-#if defined(CONFIG_BATTERY_PRESENT_CUSTOM) ||	\
-	defined(CONFIG_BATTERY_PRESENT_GPIO)
-	/* Hardware can tell us for certain */
-	batt_new.is_present = battery_is_present();
-#else
-	/* No hardware test, so we only know it's there if it responds */
-	if (batt_new.flags & BATT_FLAG_RESPONSIVE)
-		batt_new.is_present = BP_YES;
-	else
-		batt_new.is_present = BP_NOT_SURE;
-#endif
+// #if defined(CONFIG_BATTERY_PRESENT_CUSTOM) ||	
+// 	defined(CONFIG_BATTERY_PRESENT_GPIO)
+// 	/* Hardware can tell us for certain */
+// 	batt_new.is_present = battery_is_present();
+// #else
+// 	/* No hardware test, so we only know it's there if it responds */
+// 	if (batt_new.flags & BATT_FLAG_RESPONSIVE)
+// 		batt_new.is_present = BP_YES;
+// 	else
+// 		batt_new.is_present = BP_NOT_SURE;
+// #endif
+	batt_new.is_present = BP_YES;
 
 	/*
 	 * Charging allowed if both desired voltage and current are nonzero
 	 * and battery isn't full (and we read them all correctly).
 	 */
-	if (!(batt_new.flags & (BATT_FLAG_BAD_DESIRED_VOLTAGE |
-				BATT_FLAG_BAD_DESIRED_CURRENT |
-				BATT_FLAG_BAD_STATE_OF_CHARGE)) &&
-#ifdef CONFIG_BATTERY_REQUESTS_NIL_WHEN_DEAD
-		/*
-		 * TODO (crosbug.com/p/29467): remove this workaround
-		 * for dead battery that requests no voltage/current
-		 */
-		((batt_new.desired_voltage &&
-			batt_new.desired_current &&
-			batt_new.state_of_charge < BATTERY_LEVEL_FULL) ||
-		(batt_new.desired_voltage == 0 &&
-			batt_new.desired_current == 0 &&
-#ifdef CONFIG_BATTERY_DEAD_UNTIL_VALUE
-			batt_new.state_of_charge < CONFIG_BATTERY_DEAD_UNTIL_VALUE)))
-#else
-			batt_new.state_of_charge == 0)))
-#endif
-#else
-	    batt_new.desired_voltage &&
-	    batt_new.desired_current &&
-	    batt_new.state_of_charge < BATTERY_LEVEL_FULL)
-#endif
+// 	if (!(batt_new.flags & (BATT_FLAG_BAD_DESIRED_VOLTAGE |
+// 				BATT_FLAG_BAD_DESIRED_CURRENT |
+// 				BATT_FLAG_BAD_STATE_OF_CHARGE)) &&
+// #ifdef CONFIG_BATTERY_REQUESTS_NIL_WHEN_DEAD
+// 		/*
+// 		 * TODO (crosbug.com/p/29467): remove this workaround
+// 		 * for dead battery that requests no voltage/current
+// 		 */
+// 		((batt_new.desired_voltage &&
+// 			batt_new.desired_current &&
+// 			batt_new.state_of_charge < BATTERY_LEVEL_FULL) ||
+// 		(batt_new.desired_voltage == 0 &&
+// 			batt_new.desired_current == 0 &&
+// #ifdef CONFIG_BATTERY_DEAD_UNTIL_VALUE
+// 			batt_new.state_of_charge < CONFIG_BATTERY_DEAD_UNTIL_VALUE)))
+// #else
+// 			batt_new.state_of_charge == 0)))
+// #endif
+// #else
+// 	    batt_new.desired_voltage &&
+// 	    batt_new.desired_current &&
+// 	    batt_new.state_of_charge < BATTERY_LEVEL_FULL)
+// #endif
 		batt_new.flags |= BATT_FLAG_WANT_CHARGE;
-	else
-		/* Force both to zero */
-		batt_new.desired_voltage = batt_new.desired_current = 0;
+	// else
+	// 	/* Force both to zero */
+	// 	batt_new.desired_voltage = batt_new.desired_current = 0;
 
-#ifdef HAS_TASK_HOSTCMD
-	/* if there is no host, we don't care about compensation */
-	battery_compensate_params(&batt_new);
-	board_battery_compensate_params(&batt_new);
-#endif
+// #ifdef HAS_TASK_HOSTCMD
+// 	/* if there is no host, we don't care about compensation */
+// 	battery_compensate_params(&batt_new);
+// 	board_battery_compensate_params(&batt_new);
+// #endif
 
-	if (IS_ENABLED(CONFIG_CMD_BATTFAKE))
-		apply_fake_state_of_charge(&batt_new);
+	// if (IS_ENABLED(CONFIG_CMD_BATTFAKE))
+	// 	apply_fake_state_of_charge(&batt_new);
 
 	/* Update visible battery parameters */
 	memcpy(batt, &batt_new, sizeof(*batt));

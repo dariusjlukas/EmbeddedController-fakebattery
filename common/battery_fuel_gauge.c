@@ -20,7 +20,11 @@ static int get_battery_type(void)
 {
 	char manuf_name[32], device_name[32];
 	int i;
-	static enum battery_type battery_type = BATTERY_TYPE_COUNT;
+
+	//Darius - start comment
+	//static enum battery_type battery_type = BATTERY_TYPE_COUNT;
+	static enum battery_type battery_type = BATTERY_LG;
+	//Darius - end comment
 
 	/*
 	 * If battery_type is not the default value, then can return here
@@ -214,27 +218,28 @@ int battery_is_charge_fet_disabled(void)
  */
 enum battery_disconnect_state battery_get_disconnect_state(void)
 {
-	int reg;
-	int type = get_battery_type();
+	//Darius - start comment
+	// int reg;
+	// int type = get_battery_type();
 
-	/* If battery type is not known, can't check CHG/DCHG FETs */
-	if (type == BATTERY_TYPE_COUNT) {
-		/* Still don't know, so return here */
-		return EC_ERROR_BUSY;
-	}
+	// /* If battery type is not known, can't check CHG/DCHG FETs */
+	// if (type == BATTERY_TYPE_COUNT) {
+	// 	/* Still don't know, so return here */
+	// 	return EC_ERROR_BUSY;
+	// }
 
-	if (battery_get_fet_status_regval(&reg))
-		return BATTERY_DISCONNECT_ERROR;
+	// if (battery_get_fet_status_regval(&reg))
+	// 	return BATTERY_DISCONNECT_ERROR;
 
-	if ((reg & board_battery_info[type].fuel_gauge.fet.reg_mask) ==
-	    board_battery_info[type].fuel_gauge.fet.disconnect_val) {
-		CPRINTS("Batt disconnected: reg 0x%04x mask 0x%04x disc 0x%04x",
-			reg,
-			board_battery_info[type].fuel_gauge.fet.reg_mask,
-			board_battery_info[type].fuel_gauge.fet.disconnect_val);
-		return BATTERY_DISCONNECTED;
-	}
-
+	// if ((reg & board_battery_info[type].fuel_gauge.fet.reg_mask) ==
+	//     board_battery_info[type].fuel_gauge.fet.disconnect_val) {
+	// 	CPRINTS("Batt disconnected: reg 0x%04x mask 0x%04x disc 0x%04x",
+	// 		reg,
+	// 		board_battery_info[type].fuel_gauge.fet.reg_mask,
+	// 		board_battery_info[type].fuel_gauge.fet.disconnect_val);
+	// 	return BATTERY_DISCONNECTED;
+	// }
+	//Darius - end comment
 	return BATTERY_NOT_DISCONNECTED;
 }
 

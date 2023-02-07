@@ -40,7 +40,7 @@ static const struct battery_info info = {
 	.discharging_max_c = 62,
 };
 
-static enum battery_present batt_pres_prev = BP_NOT_SURE;
+static enum battery_present batt_pres_prev = BP_YES;
 static uint8_t charging_maximum_level = NEED_RESTORE;
 static int old_btp;
 
@@ -83,18 +83,19 @@ __override void battery_charger_notify(uint8_t flag)
 
 static int battery_check_disconnect(void)
 {
-	int rv;
-	uint8_t data[6];
+	//int rv;
+	//uint8_t data[6];
 
-	/* Check if battery charging + discharging is disabled. */
-	rv = sb_read_mfgacc(PARAM_OPERATION_STATUS,
-			    SB_ALT_MANUFACTURER_ACCESS, data, sizeof(data));
-	if (rv)
-		return BATTERY_DISCONNECT_ERROR;
+	// Darius - start comment
+	// /* Check if battery charging + discharging is disabled. */
+	// rv = sb_read_mfgacc(PARAM_OPERATION_STATUS,
+	// 		    SB_ALT_MANUFACTURER_ACCESS, data, sizeof(data));
+	// if (rv)
+	// 	return BATTERY_DISCONNECT_ERROR;
 
-	if (data[3] & BATTERY_DISCHARGING_DISABLED)
-		return BATTERY_DISCONNECTED;
-
+	// if (data[3] & BATTERY_DISCHARGING_DISABLED)
+	// 	return BATTERY_DISCONNECTED;
+	// Darius - end comment
 
 	return BATTERY_NOT_DISCONNECTED;
 }
@@ -113,7 +114,10 @@ enum battery_present battery_is_present(void)
 	enum battery_present batt_pres;
 	int mv;
 
-	mv = adc_read_channel(ADC_VCIN1_BATT_TEMP);
+	//Darius - start comment
+	//mv = adc_read_channel(ADC_VCIN1_BATT_TEMP);
+	mv = 15400;
+	//Darius - end comment
 	batt_pres = (mv < 3000 ? BP_YES : BP_NO);
 
 	if (mv == ADC_READ_ERROR)
